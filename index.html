@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy 22nd Birthday!</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Section 1: Birthday Cake with Candles -->
+    <section id="cake-section" class="section active">
+        <div class="cake-container">
+            <div class="cake">
+                <div class="cake-layer cake-bottom"></div>
+                <div class="cake-layer cake-middle"></div>
+                <div class="cake-layer cake-top"></div>
+            </div>
+            
+            <div id="candles-container" class="candles-container"></div>
+            
+            <div class="instruction">
+                <p>🎤 Blow into your microphone to blow out the candles!</p>
+                <p id="countdown">Candles lit: <span id="candle-count">22</span></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 2: Envelope Animation -->
+    <section id="envelope-section" class="section">
+        <div class="envelope-container">
+            <div class="envelope" id="envelope">
+                <div class="envelope-flap"></div>
+                <div class="envelope-body"></div>
+            </div>
+            <p class="envelope-text">You've got a message...</p>
+        </div>
+    </section>
+
+    <!-- Section 3: Message -->
+    <section id="message-section" class="section">
+        <div class="message-container">
+            <div class="message-content" id="message-content">
+                <h1>Happy 22nd Birthday! 🎉</h1>
+                <p>Dear [Your girlfriend's name],</p>
+                <p>Today is your special day, and I wanted to create something unique just for you. I hope this little experience brings a smile to your face.</p>
+                <p>Thank you for being the most amazing person in my life. Every day with you is a celebration. I love you so much!</p>
+                <p>Keep scrolling to see something special... 💕</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 4: Photo Gallery with Music -->
+    <section id="photo-section" class="section">
+        <div class="photo-container">
+            <audio id="background-music" loop>
+                <source src="music.mp3" type="audio/mpeg">
+            </audio>
+            
+            <div class="photo-gallery">
+                <img id="gallery-image" src="photo.jpg" alt="Our memories together">
+                <div class="music-controls">
+                    <button id="play-btn" class="control-btn">🔊 Play Music</button>
+                    <button id="pause-btn" class="control-btn">⏸ Pause</button>
+                </div>
+            </div>
+            
+            <p class="photo-text">Our favorite memories together 📸</p>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+</html>
