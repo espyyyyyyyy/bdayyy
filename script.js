@@ -1,154 +1,180 @@
-// Microphone Audio Context
+// Microphone detection for blowing out candles
 let audioContext;
 let analyser;
 let dataArray;
-let micEnabled = false;
+let bufferLength;
 let candlesBlown = 0;
-let totalCandles = 22;
+const totalCandles = 22;
 
-// Initialize candles
-function initializeCandles() {
+// Initialize microphone
+async function initMicrophone() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const source = audioContext.createMediaStreamSource(stream);
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 2048;
+        bufferLength = analyser.frequencyBinCount;
+        dataArray = new Uint8Array(bufferLength);
+        source.connect(analyser);
+        
+        detectBlow();
+    } catch (err) {
+        console.error('Microphone access denied:', err);
+        alert('Please allow microphone access to play this experience!');
+    }
+}
+
+// Detect blowing sound
+function detectBlow() {
+    analyser.getByteFrequencyData(dataArray);
+    
+    // Calculate average frequency
+    let sum = 0;
+    for (let i = 0; i < bufferLength; i++) {
+        sum += dataArray[i];
+    }
+    const average = sum / bufferLength;
+    
+    // If sound is detected (threshold), blow out candles
+    if (average > 50 && candlesBlown < totalCandles) {
+        const candlesToBlow = Math.min(Math.random() < 0.5 ? 1 : (Math.random() < 0.5 ? 2 : 3), totalCandles - candlesBlown);
+        blowOutCandles(candlesToBlow);
+    }
+    
+    if (candlesBlown < totalCandles) {
+        requestAnimationFrame(detectBlow);
+    } else {
+        // All candles blown out - transition to next section
+        setTimeout(() => transitionToEnvelope(), 1000);
+    }
+}
+
+// Blow out candles
+function blowOutCandles(count) {
+    const candles = document.querySelectorAll('.candle:not(.blown)');
+    for (let i = 0; i < count && i < candles.length; i++) {
+        candles[i].classList.add('blown');
+        candlesBlown++;
+    }
+    
+    document.getElementById('candle-count').textContent = totalCandles - candlesBlown;
+    
+    // Add sound effect (optional)
+    playSound();
+}
+
+// Play sound effect
+function playSound() {
+    if (audioContext) {
+        const now = audioContext.currentTime;
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        
+        osc.frequency.value = 800;
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+        
+        osc.start(now);
+        osc.stop(now + 0.1);
+    }
+}
+
+// Create candles
+function createCandles() {
     const container = document.getElementById('candles-container');
-    container.innerHTML = '';
+    const radius = 50;
+    const angleStep = (Math.PI * 2) / totalCandles;
     
     for (let i = 0; i < totalCandles; i++) {
+        const angle = angleStep * i;
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+        
         const candle = document.createElement('div');
         candle.className = 'candle';
-        candle.innerHTML = '<div class="flame"></div>';
-        candle.id = `candle-${i}`;
+        candle.style.left = (x + 71) + 'px';
+        candle.style.top = (y + 20) + 'px';
+        candle.style.transform = `rotate(${angle}rad)`;
+        
+        const flame = document.createElement('div');
+        flame.className = 'flame';
+        candle.appendChild(flame);
+        
         container.appendChild(candle);
     }
 }
 
-// Request microphone access
-document.getElementById('mic-toggle').addEventListener('click', async function() {
-    if (!micEnabled) {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const source = audioContext.createMediaStreamSource(stream);
-            analyser = audioContext.createAnalyser();
-            analyser.fftSize = 256;
-            source.connect(analyser);
-            
-            dataArray = new Uint8Array(analyser.frequencyBinCount);
-            micEnabled = true;
-            
-            document.getElementById('mic-toggle').textContent = '🎤 Microphone Active!';
-            document.getElementById('mic-toggle').style.background = '#51cf66';
-            
-            detectBlowing();
-        } catch (error) {
-            alert('Please allow microphone access to blow out the candles!');
-            console.error('Microphone error:', error);
-        }
-    }
-});
-
-// Detect blowing via microphone
-function detectBlowing() {
-    if (!micEnabled) return;
+// Section transitions
+function transitionToEnvelope() {
+    const cakeSection = document.getElementById('cake-section');
+    const envelopeSection = document.getElementById('envelope-section');
     
-    analyser.getByteFrequencyData(dataArray);
+    cakeSection.classList.remove('active');
+    envelopeSection.classList.add('active');
     
-    // Calculate average frequency
-    const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
-    
-    // If volume is high enough (blowing detected)
-    if (average > 50) {
-        blowOutCandles();
-    }
-    
-    requestAnimationFrame(detectBlowing);
+    setTimeout(() => {
+        const envelope = document.getElementById('envelope');
+        envelope.classList.add('open');
+        setTimeout(() => transitionToMessage(), 1500);
+    }, 1000);
 }
 
-// Blow out candles (1-3 at a time)
-function blowOutCandles() {
-    if (candlesBlown >= totalCandles) return;
+function transitionToMessage() {
+    const envelopeSection = document.getElementById('envelope-section');
+    const messageSection = document.getElementById('message-section');
     
-    const candlesToBlowOut = Math.min(Math.floor(Math.random() * 3) + 1, totalCandles - candlesBlown);
+    envelopeSection.classList.remove('active');
+    messageSection.classList.add('active');
     
-    for (let i = 0; i < candlesToBlowOut; i++) {
-        const candle = document.getElementById(`candle-${candlesBlown}`);
-        if (candle) {
-            candle.classList.add('blown');
-            const flame = candle.querySelector('.flame');
-            if (flame) {
-                flame.classList.add('out');
-            }
-        }
-        candlesBlown++;
-    }
+    // Allow scrolling to photo section
+    enableScrolling();
+}
+
+function transitionToPhoto() {
+    const photoSection = document.getElementById('photo-section');
+    photoSection.classList.add('active');
+    playMusic();
+}
+
+let scrollEnabled = false;
+
+function enableScrolling() {
+    scrollEnabled = true;
+    window.addEventListener('scroll', handleScroll);
+}
+
+function handleScroll() {
+    if (!scrollEnabled) return;
     
-    // Update candle count
-    updateCandleCount();
+    const messageSection = document.getElementById('message-section');
+    const messageRect = messageSection.getBoundingClientRect();
     
-    // Check if all candles are blown out
-    if (candlesBlown >= totalCandles) {
-        setTimeout(() => {
-            transitionToNextSection();
-        }, 2000);
+    if (messageRect.top < window.innerHeight * 0.3) {
+        transitionToPhoto();
+        window.removeEventListener('scroll', handleScroll);
     }
 }
 
-// Update candle count display
-function updateCandleCount() {
-    const remaining = totalCandles - candlesBlown;
-    document.getElementById('candle-count').textContent = `Candles remaining: ${remaining}`;
+// Music control
+function playMusic() {
+    const audio = document.getElementById('background-music');
+    audio.play().catch(err => console.log('Audio autoplay prevented:', err));
 }
 
-// Transition between sections
-function transitionToNextSection() {
-    const sections = document.querySelectorAll('.section');
-    const activeIndex = Array.from(sections).findIndex(s => s.classList.contains('active'));
-    
-    if (activeIndex < sections.length - 1) {
-        sections[activeIndex].classList.remove('active');
-        sections[activeIndex + 1].classList.add('active');
-        
-        // Auto-transition to message section after envelope animation
-        if (activeIndex + 1 === 1) {
-            setTimeout(() => {
-                sections[1].classList.remove('active');
-                sections[2].classList.add('active');
-            }, 3500);
-        }
-    }
-}
-
-// Scroll button functionality
-document.getElementById('scroll-btn').addEventListener('click', function() {
-    const messageContainer = document.querySelector('.message-container');
-    messageContainer.scrollTop = messageContainer.scrollHeight;
+document.getElementById('play-btn').addEventListener('click', () => {
+    document.getElementById('background-music').play();
 });
 
-// Scroll detection to move to photo section
-document.querySelector('.message-container').addEventListener('scroll', function() {
-    if (this.scrollTop + this.clientHeight >= this.scrollHeight - 50) {
-        const sections = document.querySelectorAll('.section');
-        sections[2].classList.remove('active');
-        sections[3].classList.add('active');
-        
-        // Auto-play music when reaching photo section
-        setTimeout(() => {
-            document.getElementById('bg-music').play().catch(e => {
-                console.log('Autoplay prevented:', e);
-            });
-        }, 500);
-    }
-});
-
-// Music player controls
-document.getElementById('play-btn').addEventListener('click', function() {
-    document.getElementById('bg-music').play();
-});
-
-document.getElementById('pause-btn').addEventListener('click', function() {
-    document.getElementById('bg-music').pause();
+document.getElementById('pause-btn').addEventListener('click', () => {
+    document.getElementById('background-music').pause();
 });
 
 // Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
-    initializeCandles();
-    updateCandleCount();
+window.addEventListener('load', () => {
+    createCandles();
+    initMicrophone();
 });
