@@ -721,7 +721,7 @@
      SECTION 1 — BIRTHDAY CAKE
 ══════════════════════════════════ -->
 <section class="section" id="cake-section">
-  <h1 class="birthday-title">Happy 22nd Birthday, Nihari 🎂</h1>
+  <h1 class="birthday-title">Happy Birthday, Nihari!! 🎂</h1>
   <p class="birthday-subtitle">Make a wish & blow out your candles</p>
 
   <div class="cake-wrap">
@@ -772,7 +772,7 @@
   <p class="mic-hint" id="mic-hint">🎤 Blow into your microphone to extinguish the candles...</p>
   <button class="blow-btn" id="blow-btn" onclick="blowAllOut()">🫧 Tap to blow out candles</button>
   <div class="all-out-msg" id="all-out-msg">
-    <p>✨ Happy Birthday, beautiful! ✨</p>
+    <p>✨ Happy Birthday, my cutie! ✨</p>
     <span class="scroll-cta" onclick="goToEnvelope()">Open your gift ↓</span>
   </div>
 </section>
@@ -823,7 +823,7 @@
       <span class="cover-hint">tap to reveal</span>
     </div>
     <!-- Replace src below with your actual photo path/URL -->
-    <img class="photo-reveal" id="photo-reveal" src="your-photo.jpg" alt="Our favourite memory"
+    <img class="photo-reveal" id="photo-reveal" src="our-photo.jpeg" alt="Our favourite memory"
          onerror="this.style.display='none'; document.getElementById('photo-placeholder').classList.add('show');">
     <div class="photo-placeholder" id="photo-placeholder">
       <p>📸 Add your photo here by replacing "your-photo.jpg" in the HTML file</p>
@@ -835,12 +835,12 @@
 <!-- MUSIC PLAYER -->
 <div class="music-bar" id="music-bar">
   <span class="music-note">♪</span>
-  <span class="music-label" id="music-label">Now playing...</span>
+  <span class="music-label" id="music-label">Olivia Dean ⋅ Dive</span>
   <button class="music-toggle" id="music-toggle" onclick="toggleMusic()">⏸</button>
 </div>
 <!-- Replace the src below with your audio file path/URL -->
 <audio id="bg-music" loop>
-  <source src="your-song.mp3" type="audio/mpeg">
+  <source src="Olivia Dean - Dive (Official Video).mp3" type="audio/mpeg">
 </audio>
 
 <script>
@@ -1049,7 +1049,7 @@ function startMusic() {
   // try to get song title from file name
   const src = audio.querySelector('source')?.src || '';
   const name = src.split('/').pop().replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ') || 'your song';
-  document.getElementById('music-label').textContent = name || 'Now playing...';
+  document.getElementById('music-label').textContent = 'Olivia Dean ⋅ Dive' || 'Now playing...';
 }
 
 function toggleMusic() {
